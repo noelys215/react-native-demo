@@ -1,5 +1,6 @@
 import { View, Text, ImageBackground } from 'react-native';
 import React from 'react';
+// @ts-ignore
 import beachImage from '@/assets/meditation-images/beach.webp';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';

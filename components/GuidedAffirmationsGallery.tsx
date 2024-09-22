@@ -1,4 +1,5 @@
 import { Image, View, Text, FlatList, Pressable } from 'react-native';
+// @ts-ignore
 import { GalleryPreviewData } from '@/constants/models/Product';
 import { Link } from 'expo-router';
 
