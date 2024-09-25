@@ -63,6 +63,12 @@ const Meditate = () => {
 		return sound;
 	};
 
+	const handleAdjustDuration = () => {
+		if (isMeditating) toggleMeditationSessionStatus();
+
+		router.push('/(modal)/adjust-meditation-duration');
+	};
+
 	// Format the time
 	const formattedTimeMinutes = String(Math.floor(secondsRemaining / 60)).padStart(2, '0');
 	const formattedTimeSeconds = String(secondsRemaining % 60).padStart(2, '0');
@@ -89,7 +95,9 @@ const Meditate = () => {
 					</View>
 
 					<View className="mb-5 ">
+						<CustomButton title="Adjust Duration" onPress={handleAdjustDuration} />
 						<CustomButton
+							containerStyles="mt-4"
 							title="Start Meditation"
 							onPress={toggleMeditationSessionStatus}
 						/>
