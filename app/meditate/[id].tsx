@@ -1,5 +1,5 @@
 import { View, Text, ImageBackground, Pressable } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import MEDITATION_IMAGES from '@/constants/meditation-images';
 import AppGradient from '@/components/AppGradient';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -7,10 +7,11 @@ import { AntDesign } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import CustomButton from '@/components/CustomButton';
 import { MEDITATION_DATA, AUDIO_FILES } from '@/constants/MeditationData';
+import { TimerContext } from '@/context/TimerContext';
 
 const Meditate = () => {
 	const { id } = useLocalSearchParams();
-	const [secondsRemaining, setSecondsRemaining] = React.useState(10);
+	const { duration: secondsRemaining, setDuration } = useContext(TimerContext);
 	const [isMeditating, setIsMeditating] = React.useState(false);
 	const [audioSound, setAudioSound] = React.useState<Audio.Sound>();
 	const [isPlayingAudio, setIsPlayingAudio] = React.useState(false);
@@ -18,27 +19,36 @@ const Meditate = () => {
 	useEffect(() => {
 		let timerId: NodeJS.Timeout;
 
-		//Exit early if we reach 0
+		// Exit early when we reach 0
 		if (secondsRemaining === 0) {
+			if (isPlayingAudio) audioSound?.pauseAsync();
 			setIsMeditating(false);
+			setIsPlayingAudio(false);
 			return;
 		}
 
 		if (isMeditating) {
-			timerId = setTimeout(() => setSecondsRemaining(secondsRemaining - 1), 1000);
+			// Save the interval ID to clear it when the component unmounts
+			timerId = setTimeout(() => {
+				setDuration(secondsRemaining - 1);
+			}, 1000);
 		}
 
-		return () => clearTimeout(timerId);
+		// Clear timeout if the component is unmounted or the time left changes
+		return () => {
+			clearTimeout(timerId);
+		};
 	}, [secondsRemaining, isMeditating]);
 
 	useEffect(() => {
 		return () => {
+			setDuration(10);
 			audioSound?.unloadAsync();
 		};
 	}, [audioSound]);
 
 	const toggleMeditationSessionStatus = async () => {
-		if (secondsRemaining === 0) setSecondsRemaining(10);
+		if (secondsRemaining === 0) setDuration(10);
 		setIsMeditating(!isMeditating);
 		await toggleSound();
 	};
@@ -98,7 +108,7 @@ const Meditate = () => {
 						<CustomButton title="Adjust Duration" onPress={handleAdjustDuration} />
 						<CustomButton
 							containerStyles="mt-4"
-							title="Start Meditation"
+							title={isMeditating ? 'Pause' : 'Start'}
 							onPress={toggleMeditationSessionStatus}
 						/>
 					</View>
